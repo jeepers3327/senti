@@ -3,10 +3,24 @@ defmodule SentiWeb.Router do
 
   pipeline :api do
     plug :accepts, ["json"]
+    plug SentiWeb.Plugs.VerifyHeader
+  end
+
+  pipeline :protected do
+    plug SentiWeb.Plugs.EnsureAuthenticated, handler: SentiWeb.ErrorHandler
   end
 
   scope "/api", SentiWeb do
     pipe_through :api
+    get "/users", UserController, :index
+    get "/users/login", UserController, :create
+    resources "/registration", RegistrationController, singleton: true, only: [:create]
+    resources "/session", SessionController, singleton: true, only: [:create, :delete]
+  end
+
+  scope "/api", SentiWeb do
+    pipe_through [:api, :protected]
+    get "/users/:id", UserController, :show
   end
 
   # Enables LiveDashboard only for development
