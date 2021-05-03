@@ -11,7 +11,7 @@ defmodule Senti.Presentations.Presentation do
 
     has_many :questions, Question
     has_many :sessions, Session
-    belongs_to :user, User
+    belongs_to :user, User, type: :binary_id
 
     timestamps(type: :utc_datetime)
   end
