@@ -9,9 +9,7 @@ defmodule SentiWeb.Plugs.VerifyHeader do
 
   @doc false
   def call(conn, _opts) do
-    IO.inspect(conn)
     token = fetch_cookies(conn, signed: ["token"]) |> fetch_token()
-    IO.inspect(token)
 
     case Token.verify_token(token) do
       {:ok, payload} ->
