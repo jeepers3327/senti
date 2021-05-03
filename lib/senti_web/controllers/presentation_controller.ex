@@ -7,12 +7,13 @@ defmodule SentiWeb.PresentationController do
   action_fallback SentiWeb.FallbackController
 
   def index(conn, _params) do
-    presentations = Presentations.list_presentations()
+    presentations = Presentations.list_presentations(conn.assigns.current_user.id)
     render(conn, "index.json", presentations: presentations)
   end
 
   def create(conn, %{"presentation" => presentation_params}) do
-    with {:ok, %Presentation{} = presentation} <- Presentations.create_presentation(presentation_params) do
+    with {:ok, %Presentation{} = presentation} <-
+           Presentations.create_presentation(presentation_params) do
       conn
       |> put_status(:created)
       |> put_resp_header("location", Routes.presentation_path(conn, :show, presentation))
@@ -28,7 +29,8 @@ defmodule SentiWeb.PresentationController do
   def update(conn, %{"id" => id, "presentation" => presentation_params}) do
     presentation = Presentations.get_presentation!(id)
 
-    with {:ok, %Presentation{} = presentation} <- Presentations.update_presentation(presentation, presentation_params) do
+    with {:ok, %Presentation{} = presentation} <-
+           Presentations.update_presentation(presentation, presentation_params) do
       render(conn, "show.json", presentation: presentation)
     end
   end

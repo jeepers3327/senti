@@ -5,100 +5,56 @@ defmodule Senti.Presentations do
 
   import Ecto.Query, warn: false
   alias Senti.Repo
+  alias Ecto.Multi
 
-  alias Senti.Presentations.Presentation
+  alias Senti.Presentations.{Presentation, Question}
 
-  @doc """
-  Returns the list of presentations.
-
-  ## Examples
-
-      iex> list_presentations()
-      [%Presentation{}, ...]
-
-  """
-  def list_presentations do
-    Repo.all(Presentation)
+  def list_presentations(user_id) do
+    Presentation
+    |> where(user_id: ^user_id)
+    |> Repo.all()
   end
 
-  @doc """
-  Gets a single presentation.
-
-  Raises `Ecto.NoResultsError` if the Presentation does not exist.
-
-  ## Examples
-
-      iex> get_presentation!(123)
-      %Presentation{}
-
-      iex> get_presentation!(456)
-      ** (Ecto.NoResultsError)
-
-  """
   def get_presentation!(id), do: Repo.get!(Presentation, id)
 
-  @doc """
-  Creates a presentation.
-
-  ## Examples
-
-      iex> create_presentation(%{field: value})
-      {:ok, %Presentation{}}
-
-      iex> create_presentation(%{field: bad_value})
-      {:error, %Ecto.Changeset{}}
-
-  """
   def create_presentation(attrs \\ %{}) do
-    %Presentation{}
-    |> Presentation.changeset(attrs)
-    |> Repo.insert()
+    Multi.new()
+    |> Multi.insert(:presentation, Presentation.changeset(%Presentation{}, attrs))
+    |> Multi.insert_all(:questions, Question, fn %{presentation: presentation} ->
+      append_questions_to_presentation(presentation.id, attrs)
+    end)
+    |> Repo.transaction()
   end
 
-  @doc """
-  Updates a presentation.
-
-  ## Examples
-
-      iex> update_presentation(presentation, %{field: new_value})
-      {:ok, %Presentation{}}
-
-      iex> update_presentation(presentation, %{field: bad_value})
-      {:error, %Ecto.Changeset{}}
-
-  """
   def update_presentation(%Presentation{} = presentation, attrs) do
     presentation
     |> Presentation.changeset(attrs)
     |> Repo.update()
   end
 
-  @doc """
-  Deletes a presentation.
-
-  ## Examples
-
-      iex> delete_presentation(presentation)
-      {:ok, %Presentation{}}
-
-      iex> delete_presentation(presentation)
-      {:error, %Ecto.Changeset{}}
-
-  """
   def delete_presentation(%Presentation{} = presentation) do
     Repo.delete(presentation)
   end
 
-  @doc """
-  Returns an `%Ecto.Changeset{}` for tracking presentation changes.
-
-  ## Examples
-
-      iex> change_presentation(presentation)
-      %Ecto.Changeset{data: %Presentation{}}
-
-  """
   def change_presentation(%Presentation{} = presentation, attrs \\ %{}) do
     Presentation.changeset(presentation, attrs)
+  end
+
+  defp append_questions_to_presentation(presentation_id, attrs) do
+    questions = Map.get(attrs, "questions", [])
+
+    extra_params = %{
+      "presentation_id" => presentation_id,
+      "inserted_at" => DateTime.utc_now() |> DateTime.truncate(:second),
+      "updated_at" => DateTime.utc_now() |> DateTime.truncate(:second)
+    }
+
+    Enum.map(questions, fn question ->
+      question
+      |> Map.merge(extra_params)
+      |> Map.new(fn {k, v} ->
+        {String.to_atom(k), v}
+      end)
+    end)
   end
 end
