@@ -1,0 +1,32 @@
+const colors = [
+  `red.400`,
+  `red.600`,
+  `red.800`,
+  `orange.400`,
+  `orange.600`,
+  `orange.800`,
+  `yellow.400`,
+  `yellow.600`,
+  `yellow.800`,
+  `green.400`,
+  `green.600`,
+  `green.800`,
+  `teal.400`,
+  `teal.600`,
+  `teal.800`,
+  `blue.400`,
+  `blue.600`,
+  `blue.800`,
+  `cyan.400`,
+  `cyan.600`,
+  `cyan.800`,
+  `purple.400`,
+  `purple.600`,
+  `purple.800`,
+  `pink.400`,
+  `pink.600`,
+  `pink.800`,
+];
+
+export const getBorderColor = () =>
+  colors[Math.floor(Math.random() * colors.length)];
