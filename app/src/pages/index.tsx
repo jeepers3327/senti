@@ -1,39 +1,125 @@
-import { Content } from '@/components';
-
 import {
-  useColorModeValue,
   Button,
   VStack,
   Box,
   Heading,
   Input,
   Flex,
+  Alert,
+  AlertIcon,
+  AlertTitle,
 } from '@chakra-ui/react';
-import React from 'react';
+import Router from 'next/router';
+import React, { FormEvent, useEffect, useState } from 'react';
+import { useFormState } from 'react-use-form-state';
 
-export default function Home() {
+import { Content } from '@/components';
+import { useAppDispatch } from '@/hooks';
+import { fetchCurrentUser, formatSession, joinPresentation } from '@/utils';
+import { setSessionInfo, setUserInfo, UserState } from '@/store';
+import { GetServerSideProps, NextPage } from 'next';
+
+interface CodeProp {
+  code: string;
+}
+interface IndexProps {
+  user: UserState;
+  isAuthenticated: boolean;
+}
+
+export const getServerSideProps: GetServerSideProps = async ({ req }) => {
+  if (!req.headers.cookie) {
+    return {
+      props: {
+        isAuthenticated: false,
+      },
+    };
+  }
+  const user = await fetchCurrentUser(req.headers.cookie);
+
+  return {
+    props: {
+      user,
+    },
+  };
+};
+
+const Index: NextPage<IndexProps> = ({ user }) => {
+  const [doesExist, setDoesExist] = useState(true);
+  const [formState, { text }] = useFormState<CodeProp>();
+  const dispatch = useAppDispatch();
+
+  useEffect(() => {
+    if (user) {
+      dispatch(setUserInfo(user));
+    }
+  }, []);
+
+  const handleSubmit = async (event: FormEvent) => {
+    const { code } = formState.values;
+    event.preventDefault();
+    try {
+      const data = await joinPresentation(code);
+      setDoesExist(true);
+
+      const session = formatSession(data);
+      dispatch(setSessionInfo(session));
+
+      localStorage.setItem(`session_id`, String(session.id));
+      localStorage.setItem(`presentation_id`, String(session.presentationId));
+
+      if (session.status === `ready`) {
+        Router.push(`/scene/${session.id}/waiting`);
+      } else if (session.status === `started`) {
+        Router.push(`/scene/${session.id}/answer`);
+      } else if (session.status === `ended`) {
+        Router.push(`/scene/${session.id}/ended`);
+      }
+    } catch (e) {
+      setDoesExist(false);
+    }
+  };
+
   return (
-    <Content title="Senti - Join presentation" hasNavbar>
+    <Content hasNavbar>
       <Flex p="5rem" flex="1" direction="column" alignItems="center">
+        <Alert
+          maxWidth="xl"
+          rounded="sm"
+          mb="5"
+          status="error"
+          display={!doesExist ? `flex` : `none`}
+        >
+          <AlertIcon />
+          <AlertTitle>Access code is invalid or session has ended!</AlertTitle>
+        </Alert>
         <Box
           p="10"
           rounded="lg"
           border="1px solid #d3dae6"
           shadow="lg"
-          bg={useColorModeValue(`white`, `gray.800`)}
+          bg="white"
           minW="xl"
         >
-          <VStack spacing="5">
-            <Heading pt="5" size="md">
-              Enter the access code below to join!
-            </Heading>
-            <Input placeholder="Enter access code..." />
-            <Button colorScheme="blue" isFullWidth>
-              Join Session
-            </Button>
-          </VStack>
+          <form onSubmit={handleSubmit}>
+            <VStack spacing="15">
+              <Heading pt="5" size="md">
+                Enter the access code below to join!
+              </Heading>
+              <Input
+                placeholder="Enter access code..."
+                required
+                {...text(`code`)}
+              />
+              <Button type="submit" colorScheme="blue" isFullWidth>
+                Join Session
+              </Button>
+            </VStack>
+          </form>
         </Box>
       </Flex>
     </Content>
   );
-}
+};
+
+export default Index;

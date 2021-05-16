@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { FormEvent, useEffect } from 'react';
 import {
   Box,
   Text,
@@ -13,16 +13,52 @@ import {
   Flex,
   Link,
   useColorModeValue,
+  useToast,
 } from '@chakra-ui/react';
-import { useRouter } from 'next/router';
+import Router from 'next/router';
 import RouteLink from 'next/link';
+import { useFormState } from 'react-use-form-state';
+
 import { Content } from '@/components';
+import { useAppDispatch, useAppSelector } from '@/hooks';
+import { createUserSession } from '@/utils';
+import { increaseAuthFailedAttempts } from '@/store';
+
+interface LoginProps {
+  email: string;
+  password: string;
+}
 
 const Login = () => {
-  const router = useRouter();
+  const dispatch = useAppDispatch();
+  const user = useAppSelector((state) => state.user);
+  const toast = useToast();
+  const [formState, { email, password }] = useFormState<LoginProps>();
+
+  const handleSubmit = async (event: FormEvent) => {
+    event.preventDefault();
+    try {
+      await createUserSession(formState.values);
+
+      Router.push(`/app`);
+    } catch {
+      dispatch(increaseAuthFailedAttempts());
+    }
+  };
+
+  useEffect(() => {
+    if (!user.isAuthenticated && user.failedAttempts > 0) {
+      toast({
+        title: `Wrong email or password!`,
+        status: `error`,
+        position: `top`,
+        duration: 5000,
+      });
+    }
+  }, [user.failedAttempts]);
 
   return (
-    <Content title="Senti - Login to get started" hasNavbar>
+    <Content hasNavbar>
       <Box padding="10rem">
         <Flex alignItems="center" flexDirection="column">
           <Heading fontSize="2xl">Sign in to Senti</Heading>
@@ -37,19 +73,19 @@ const Login = () => {
             bg={useColorModeValue(`white`, `gray.800`)}
             minW="lg"
           >
-            <form autoComplete="off">
+            <form onSubmit={handleSubmit} autoComplete="off">
               <Stack spacing={4} marginBottom="1rem">
                 <FormControl>
                   <FormLabel fontWeight="bold" htmlFor="email">
                     Email Address
                   </FormLabel>
                   <Input
+                    tabIndex={1}
                     bg="white"
                     focusBorderColor="blue.500"
-                    type="email"
-                    name="email"
-                    id="email"
                     placeholder="name@example.com"
+                    required
+                    {...email(`email`)}
                   />
                 </FormControl>
 
@@ -59,6 +95,7 @@ const Login = () => {
                       Password
                     </FormLabel>
                     <Link
+                      tabIndex={5}
                       as={RouteLink}
                       href="/password_reset"
                       color="secondary.link"
@@ -69,17 +106,18 @@ const Login = () => {
                     </Link>
                   </Stack>
                   <Input
+                    tabIndex={2}
                     bg="white"
                     focusBorderColor="blue.500"
-                    name="password"
-                    id="password"
-                    type="password"
                     placeholder="Enter your password"
+                    required
+                    {...password(`password`)}
                   />
                 </FormControl>
               </Stack>
               <Stack marginBottom="1rem">
                 <Button
+                  tabIndex={3}
                   type="submit"
                   loadingText="Please wait.."
                   colorScheme="blue"
@@ -94,7 +132,8 @@ const Login = () => {
                 Don&apos;t have an account?
               </Text>
               <Button
-                onClick={() => router.push(`/register`)}
+                tabIndex={4}
+                onClick={() => Router.push(`/register`)}
                 colorScheme="blue"
                 variant="outline"
               >

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { FormEvent } from 'react';
 import {
   Box,
   Text,
@@ -13,16 +13,48 @@ import {
   Grid,
   Flex,
   useColorModeValue,
+  FormErrorMessage,
+  useToast,
 } from '@chakra-ui/react';
 
 import { useRouter } from 'next/router';
 import { Content } from '@/components';
+import { useFormState } from 'react-use-form-state';
+import { createNewUser } from '@/utils';
+import { useAppDispatch } from '@/hooks';
+import { setUserInfo } from '@/store';
+
+interface RegisterProps {
+  name: string;
+  email: string;
+  password: string;
+}
 
 const Register = () => {
   const router = useRouter();
+  const dispatch = useAppDispatch();
+  const toast = useToast();
+  const [formState, { text, password, email }] = useFormState<RegisterProps>();
+
+  const handleSubmit = async (event: FormEvent) => {
+    event.preventDefault();
+
+    try {
+      const data = await createNewUser(formState.values);
+      dispatch(setUserInfo(data));
+      router.push(`/app`);
+    } catch {
+      toast({
+        title: `An error occured!`,
+        status: `error`,
+        position: `top`,
+        duration: 5000,
+      });
+    }
+  };
 
   return (
-    <Content title="Senti - Create your account" hasNavbar>
+    <Content hasNavbar>
       <Box padding="10rem">
         <Flex alignItems="center" flexDirection="column">
           <Heading fontSize="2xl">Create your Senti account</Heading>
@@ -37,7 +69,7 @@ const Register = () => {
             bg={useColorModeValue(`white`, `gray.800`)}
             minW="lg"
           >
-            <form>
+            <form onSubmit={handleSubmit}>
               <Stack spacing={4} marginBottom="1rem">
                 <FormControl>
                   <FormLabel fontWeight="bold" htmlFor="name">
@@ -47,12 +79,12 @@ const Register = () => {
                     <Input
                       bg="white"
                       focusBorderColor="blue.500"
-                      type="name"
-                      name="name"
-                      id="name"
                       placeholder="Enter your name..."
+                      required
+                      {...text(`name`)}
                     />
                   </InputGroup>
+                  <FormErrorMessage>{formState.errors.name}</FormErrorMessage>
                 </FormControl>
 
                 <FormControl>
@@ -62,11 +94,11 @@ const Register = () => {
                   <Input
                     bg="white"
                     focusBorderColor="blue.500"
-                    type="email"
-                    name="email"
-                    id="email"
                     placeholder="Enter your email address..."
+                    required
+                    {...email(`email`)}
                   />
+                  <FormErrorMessage>{formState.errors.email}</FormErrorMessage>
                 </FormControl>
 
                 <FormControl>
@@ -78,11 +110,14 @@ const Register = () => {
                   <Input
                     bg="white"
                     focusBorderColor="blue.500"
-                    name="password"
-                    id="password"
-                    type="password"
                     placeholder="Enter your password"
+                    required
+                    minLength={8}
+                    {...password(`password`)}
                   />
+                  <FormErrorMessage>
+                    {formState.errors.password}
+                  </FormErrorMessage>
                 </FormControl>
               </Stack>
               <Stack marginBottom="1rem">
