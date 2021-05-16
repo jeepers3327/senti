@@ -17,6 +17,10 @@
   "plugins": ["import", "jsx-a11y", "react", "react-hooks", "prettier"],
   "extends": ["airbnb", "prettier"],
   "rules": {
+    "no-param-reassign": [
+      "error",
+      { "props": true, "ignorePropertyModificationsFor": ["state"] }
+    ],
     "prettier/prettier": "error",
     "camelcase": "off",
     "import/prefer-default-export": "off",
@@ -26,6 +30,7 @@
     "react/no-unused-prop-types": "off",
     "react/react-in-jsx-scope": "off",
     "react/require-default-props": "off",
+    "no-console": "off",
     "import/extensions": [
       "error",
       "ignorePackages",
@@ -44,17 +49,15 @@
         "specialLink": ["hrefLeft", "hrefRight"],
         "aspects": ["invalidHref", "preferButton"]
       }
-    ]
+    ],
+    "jsx-a11y/tabindex-no-positive": "off"
   },
   "overrides": [
     {
       "files": "**/*.+(ts|tsx)",
       "parser": "@typescript-eslint/parser",
       "plugins": ["@typescript-eslint/eslint-plugin"],
-      "extends": [
-        "plugin:@typescript-eslint/recommended",
-        "prettier"
-      ],
+      "extends": ["plugin:@typescript-eslint/recommended", "prettier"],
       "rules": {
         "@typescript-eslint/explicit-function-return-type": "off",
         "@typescript-eslint/explicit-module-boundary-types": "off",
