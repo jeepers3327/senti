@@ -11,14 +11,27 @@ defmodule SentiWeb.SessionController do
     with {:ok, %User{} = user} <- Accounts.authenticate_user(email, password),
          token <- Token.generate_token(user) do
       conn
-      |> put_resp_cookie("token", token, max_age: 2_592_000)
+      |> put_session(:token, token)
       |> render("auth.json", user: user)
+    else
+      {:error, message} ->
+        conn
+        |> delete_session(:token)
+        |> put_status(401)
+        |> json(%{message: message})
     end
   end
 
   def delete(conn, _params) do
     conn
-    |> delete_resp_cookie("token")
+    |> clear_session()
+    |> configure_session(drop: true)
     |> send_resp(:no_content, "")
+  end
+
+  def me(conn, _params) do
+    conn
+    |> put_status(:ok)
+    |> render("auth.json", user: conn.assigns.current_user)
   end
 end
