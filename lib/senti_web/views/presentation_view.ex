@@ -11,8 +11,20 @@ defmodule SentiWeb.PresentationView do
   end
 
   def render("presentation.json", %{presentation: presentation}) do
-    %{id: presentation.id,
+    %{
+      id: presentation.id,
       name: presentation.name,
-      allow_multiple_answers: presentation.allow_multiple_answers}
+      created_at: presentation.inserted_at,
+      updated_at: presentation.updated_at
+    }
+  end
+
+  def render("session.json", %{session: session}) do
+    %{
+      id: session.id,
+      access_code: session.access_code,
+      presentation_id: session.presentation_id,
+      status: session.status
+    }
   end
 end
