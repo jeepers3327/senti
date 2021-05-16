@@ -1,10 +1,8 @@
 import {
-  useColorMode,
   useColorModeValue,
   useDisclosure,
   chakra,
   Button,
-  CloseButton,
   Flex,
   HStack,
   IconButton,
@@ -12,40 +10,45 @@ import {
   Img,
   LinkOverlay,
   LinkBox,
+  MenuList,
+  Menu,
+  MenuButton,
+  MenuDivider,
+  MenuItem,
+  Text,
+  useOutsideClick,
 } from '@chakra-ui/react';
-import { useViewportScroll } from 'framer-motion';
 
-import {
-  SunIcon,
-  HomeIcon,
-  VideoCameraIcon,
-  MenuIcon,
-  MoonIcon,
-  InboxIcon,
-} from '@heroicons/react/outline';
-
+import React, { Fragment, FunctionComponent, useRef } from 'react';
+import { MenuIcon } from '@heroicons/react/outline';
 import Link from 'next/link';
+import Router from 'next/router';
 
-import React, { FunctionComponent, useRef } from 'react';
-import { useRouter } from 'next/router';
+import { useAppDispatch, useAppSelector } from '@/hooks';
+import { deleteSession } from '@/utils';
+import { resetUserInfo } from '@/store';
 
 const Header: FunctionComponent = () => {
-  const { toggleColorMode: toggleMode, colorMode } = useColorMode();
-  const text = useColorModeValue(`dark`, `light`);
-  const SwitchIcon = useColorModeValue(MoonIcon, SunIcon);
-  const bg = useColorModeValue(`white`, `gray.800`);
+  const user = useAppSelector((state) => state.user);
+  const dispatch = useAppDispatch();
   const ref = useRef<HTMLDivElement>(null);
-  const [y, setY] = React.useState(0);
-  const { height = 0 } = ref.current ? ref.current.getBoundingClientRect() : {};
-  const { scrollY } = useViewportScroll();
-  const router = useRouter();
-
-  React.useEffect(() => scrollY.onChange(() => setY(scrollY.get())), [scrollY]);
-
+  const mobileRef = useRef<HTMLDivElement>(null);
   const mobileNav = useDisclosure();
+
+  useOutsideClick({
+    ref: mobileRef,
+    handler: mobileNav.onClose,
+  });
+
+  const handleLogout = async () => {
+    await deleteSession();
+    dispatch(resetUserInfo());
+    Router.push(`/`);
+  };
 
   const MobileNavContent = (
     <VStack
+      ref={mobileRef}
       pos="absolute"
       top={0}
       left={0}
@@ -55,38 +58,43 @@ const Header: FunctionComponent = () => {
       p={2}
       pb={4}
       m={2}
-      bg={bg}
+      bg="white"
       spacing={3}
       rounded="sm"
       shadow="sm"
     >
-      <CloseButton
-        aria-label="Close menu"
-        justifySelf="self-start"
-        onClick={mobileNav.onClose}
-      />
-      <Button
-        w="full"
-        variant="ghost"
-        leftIcon={<HomeIcon width="20px" height="20px" />}
-      >
-        Dashboard
-      </Button>
-      <Button
-        w="full"
-        variant="solid"
-        colorScheme="brand"
-        leftIcon={<InboxIcon width="20px" height="20px" />}
-      >
-        Inbox
-      </Button>
-      <Button
-        w="full"
-        variant="ghost"
-        leftIcon={<VideoCameraIcon width="20px" height="20px" />}
-      >
-        Videos
-      </Button>
+      {user.id === `` && (
+        <>
+          <HStack justifyContent="space-evenly">
+            <Button
+              colorScheme="brand"
+              variant="ghost"
+              size="sm"
+              onClick={() => Router.push(`/login`)}
+            >
+              Sign in
+            </Button>
+            <Button
+              colorScheme="facebook"
+              variant="solid"
+              size="sm"
+              onClick={() => Router.push(`/register`)}
+            >
+              Sign up
+            </Button>
+          </HStack>
+        </>
+      )}
+      {user.id !== `` && (
+        <HStack justifyContent="space-evenly">
+          <Text paddingY="0.5rem" paddingX="1rem">
+            Logged in as: {user.name}
+          </Text>
+          <Button colorScheme="blue" onClick={handleLogout}>
+            Logout
+          </Button>
+        </HStack>
+      )}
     </VStack>
   );
 
@@ -94,9 +102,9 @@ const Header: FunctionComponent = () => {
     <>
       <chakra.header
         ref={ref}
-        shadow={y > height ? `sm` : undefined}
+        shadow="sm"
         transition="box-shadow 0.2s"
-        bg={bg}
+        bg="white"
         w="full"
         overflowY="hidden"
         borderBottomWidth={2}
@@ -114,47 +122,61 @@ const Header: FunctionComponent = () => {
               <LinkBox>
                 <Link href="/" passHref>
                   <LinkOverlay>
-                    <Img
-                      h="2rem"
-                      src={
-                        colorMode === `light`
-                          ? `/senti-dark.svg`
-                          : `/senti-light.svg`
-                      }
-                    />
+                    <Img h="2rem" src="/senti-dark.svg" />
                   </LinkOverlay>
                 </Link>
               </LinkBox>
             </Flex>
             <Flex justify="flex-end" align="center" color="gray.400">
               <HStack spacing="5" display={{ base: `none`, md: `flex` }}>
-                <Button
-                  colorScheme="brand"
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => router.push(`/login`)}
-                >
-                  Sign in
-                </Button>
-                <Button
-                  colorScheme="facebook"
-                  variant="solid"
-                  size="sm"
-                  onClick={() => router.push(`/register`)}
-                >
-                  Sign up
-                </Button>
+                {!user.isAuthenticated && (
+                  <>
+                    <Button
+                      colorScheme="brand"
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => Router.push(`/login`)}
+                    >
+                      Sign in
+                    </Button>
+                    <Button
+                      colorScheme="facebook"
+                      variant="solid"
+                      size="sm"
+                      onClick={() => Router.push(`/register`)}
+                    >
+                      Sign up
+                    </Button>
+                  </>
+                )}
+                {user.isAuthenticated && (
+                  <>
+                    <Button
+                      variant="ghost"
+                      colorScheme="blackAlpha"
+                      onClick={() => Router.push(`/app`)}
+                    >
+                      Dashboard
+                    </Button>
+                    <Menu>
+                      <MenuButton
+                        as={Button}
+                        variant="ghost"
+                        colorScheme="linkedin"
+                      >
+                        My account
+                      </MenuButton>
+                      <MenuList>
+                        <Text paddingY="0.5rem" paddingX="1rem">
+                          Logged in as: {user.name}
+                        </Text>
+                        <MenuDivider />
+                        <MenuItem onClick={handleLogout}>Logout</MenuItem>
+                      </MenuList>
+                    </Menu>
+                  </>
+                )}
               </HStack>
-              <IconButton
-                size="md"
-                fontSize="lg"
-                aria-label={`Switch to ${text} mode`}
-                variant="ghost"
-                color="current"
-                ml={{ base: `0`, md: `3` }}
-                onClick={toggleMode}
-                icon={<SwitchIcon width="20px" height="20px" />}
-              />
               <IconButton
                 display={{ base: `flex`, md: `none` }}
                 aria-label="Open menu"

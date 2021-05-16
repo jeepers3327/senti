@@ -1,23 +1,19 @@
 import { Fragment, FunctionComponent } from 'react';
 import Head from 'next/head';
+
 import { Navbar } from '@/components';
 
 interface ContentProps {
-  title: string;
   hasNavbar: boolean;
 }
 
-const Content: FunctionComponent<ContentProps> = ({
-  children,
-  title,
-  hasNavbar,
-}) => (
+const Content: FunctionComponent<ContentProps> = ({ children, hasNavbar }) => (
   <>
     <Head>
-      <title>{title}</title>
+      <title>Senti - Share you thoughts freely!</title>
       <link rel="icon" href="/favicon.ico" />
     </Head>
-    {hasNavbar ? <Navbar /> : ``}
+    {hasNavbar ? <Navbar /> : null}
     {children}
   </>
 );
