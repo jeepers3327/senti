@@ -9,19 +9,18 @@ defmodule SentiWeb.Plugs.VerifyHeader do
 
   @doc false
   def call(conn, _opts) do
-    token = fetch_cookies(conn, signed: ["token"]) |> fetch_token()
+    token = get_session(conn, :token)
 
     case Token.verify_token(token) do
       {:ok, payload} ->
         conn
         |> assign(:current_user, payload)
-        |> assign(:token, token)
 
       {:error, _} ->
         conn
     end
   end
 
-  defp fetch_token(%Plug.Conn{req_cookies: %{"token" => token}}), do: token
-  defp fetch_token(_conn), do: nil
+  # defp fetch_token(%Plug.Conn{req_cookies: %{"token" => token}}), do: token
+  # defp fetch_token(_conn), do: nil
 end
