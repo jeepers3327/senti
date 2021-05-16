@@ -21,4 +21,11 @@ defmodule SentiWeb.FallbackController do
     |> put_view(SentiWeb.ErrorView)
     |> render(:"404")
   end
+
+  def call(conn, {:error, _failed_operation, _failed_value, _changes_so_far}) do
+    conn
+    |> put_status(:bad_request)
+    |> put_view(SentiWeb.ErrorView)
+    |> render(:"400")
+  end
 end
