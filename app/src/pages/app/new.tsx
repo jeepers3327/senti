@@ -10,29 +10,62 @@ import {
   FormControl,
   FormLabel,
   Text,
-  Checkbox,
 } from '@chakra-ui/react';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import Router from 'next/router';
+import { GetServerSideProps, NextPage } from 'next';
 import { PlusIcon } from '@heroicons/react/solid';
 import { useFormState } from 'react-use-form-state';
 import _ from 'lodash';
 
 import { Content, Question } from '@/components';
+import { useAppDispatch, useAppSelector } from '@/hooks';
+import { createPresentation, fetchCurrentUser } from '@/utils';
+import { setUserInfo, UserState } from '@/store';
+
+interface CreatePresentationProps {
+  authenticatedUser: UserState;
+}
 
 interface FormProps {
   name: string;
-  allow_multiple_answers: string;
 }
 
 interface QuestionListProps {
   text: string;
 }
 
-const CreatePresentation = () => {
+export const getServerSideProps: GetServerSideProps = async ({ req }) => {
+  if (!req.headers.cookie) {
+    return {
+      redirect: {
+        destination: `/login`,
+        permanent: false,
+      },
+    };
+  }
+
+  const authenticatedUser = await fetchCurrentUser(req.headers.cookie);
+  return {
+    props: {
+      authenticatedUser,
+    },
+  };
+};
+
+const CreatePresentation: NextPage<CreatePresentationProps> = ({
+  authenticatedUser,
+}) => {
+  const user = useAppSelector((state) => state.user);
+  const dispatch = useAppDispatch();
   const [questionList, setQuestionList] = useState<QuestionListProps[]>([]);
   const [question, setQuestion] = useState(``);
-  const [formState, { text, checkbox }] = useFormState<FormProps>();
-  // const isFormValid = () => Object.keys(formState.errors).length === 0;
+  const [formState, { text }] = useFormState<FormProps>();
+
+  useEffect(() => {
+    dispatch(setUserInfo(authenticatedUser));
+  }, []);
+
   const addQuestion = () => {
     if (question === ``) return;
 
@@ -41,14 +74,21 @@ const CreatePresentation = () => {
     setQuestion(``);
   };
 
-  const handleSubmit = (event: React.FormEvent) => {
+  const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
-
-    // const values = { ...formState.values, questions: questionList };
+    const values = {
+      ...formState.values,
+      questions: questionList,
+      user_id: user.id,
+    };
+    await createPresentation(values);
+    Router.push(`/app`);
   };
 
+  const removeQuestion = (id: number) => questionList.splice(id, 1);
+
   return (
-    <Content title="Senti - Create new presentation" hasNavbar>
+    <Content hasNavbar>
       <Grid placeItems="center">
         <form onSubmit={handleSubmit}>
           <Flex pb="12" pt="5" width="xl">
@@ -101,7 +141,7 @@ const CreatePresentation = () => {
                 <Question
                   key={_.uniqueId(`question`)}
                   questionText={item.text}
-                  onDelete={() => console.log(index)}
+                  onDelete={() => removeQuestion(index)}
                 />
               ))}
             {questionList.length === 0 && (
@@ -110,16 +150,6 @@ const CreatePresentation = () => {
               </Box>
             )}
           </Stack>
-          <Flex pb="1" pt="8" width="xl">
-            <FormControl>
-              <FormLabel>
-                <Heading fontSize="3xl">Option</Heading>
-              </FormLabel>
-              <Checkbox defaultChecked {...checkbox(`allow_multiple_answers`)}>
-                Allow multiple answers
-              </Checkbox>
-            </FormControl>
-          </Flex>
           <Flex width="xl" pt="5">
             <Button isFullWidth colorScheme="green" type="submit">
               Create presentation

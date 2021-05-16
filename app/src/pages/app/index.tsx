@@ -1,4 +1,4 @@
-import React, { FunctionComponent } from 'react';
+import React, { useEffect } from 'react';
 import {
   Box,
   Button,
@@ -18,29 +18,100 @@ import {
   ViewListIcon,
   DocumentReportIcon,
 } from '@heroicons/react/solid';
-
 import Link from 'next/link';
+
 import { Content } from '@/components';
+import {
+  createSession,
+  fetchCurrentUser,
+  fetchUserPresentations,
+  formatSession,
+} from '@/utils';
+import { useAppDispatch, useAppSelector } from '@/hooks';
+import {
+  Presentation,
+  setSessionInfo,
+  setUserInfo,
+  setUserPresentations,
+  UserState,
+} from '@/store';
+import { GetServerSideProps, NextPage } from 'next';
+import Router from 'next/router';
 
-const today = dayjs().format(`MMMM DD, YYYY`);
+interface AppIndexProps {
+  authenticatedUser: UserState;
+  userPresentations: Presentation[];
+}
 
-const data = [
-  { id: 1, name: `Jon`, createdAt: today, updatedAt: today },
-  { id: 2, name: `Bon`, createdAt: today, updatedAt: today },
-  { id: 3, name: `Gon`, createdAt: today, updatedAt: today },
-];
+export const getServerSideProps: GetServerSideProps = async ({ req }) => {
+  if (!req.headers.cookie) {
+    return {
+      redirect: {
+        destination: `/login`,
+        permanent: false,
+      },
+    };
+  }
 
-const Index: FunctionComponent = () => {
+  const authenticatedUser = await fetchCurrentUser(req.headers.cookie);
+  const userPresentations = await fetchUserPresentations(req.headers.cookie);
+  return {
+    props: {
+      authenticatedUser,
+      userPresentations,
+    },
+  };
+};
+
+const Index: NextPage<AppIndexProps> = ({
+  authenticatedUser,
+  userPresentations,
+}) => {
+  const dispatch = useAppDispatch();
+  const user = useAppSelector((state) => state.user);
+  const presentations = useAppSelector((state) => state.user.presentations);
+
+  useEffect(() => {
+    dispatch(setUserInfo(authenticatedUser));
+    dispatch(setUserPresentations(userPresentations));
+  }, []);
+
+  const handlePresent = async (presentationId: string) => {
+    let session = await createSession(presentationId);
+    session = formatSession(session);
+    dispatch(setSessionInfo(session));
+
+    localStorage.setItem(`session_id`, String(session.id));
+    localStorage.setItem(`presentation_id`, String(session.presentationId));
+
+    if (!user.isAuthenticated) {
+      if (session.status === `ready`) {
+        Router.push(`/scene/${session.id}/waiting`);
+      } else if (session.status === `started`) {
+        Router.push(`/scene/${session.id}/answer`);
+      } else if (session.status === `ended`) {
+        Router.push(`/scene/${session.id}/ended`);
+      }
+    } else if (session.status === `ready`) {
+      Router.push(`/scene/${session.id}/ready`);
+    } else if (session.status === `started`) {
+      Router.push(`/scene/${session.id}/responses`);
+    } else if (session.status === `ended`) {
+      Router.push(`/scene/${session.id}/ended`);
+    }
+  };
+
   const renderRows = () =>
-    data.map((item) => (
+    presentations.map((item) => (
       <Tr key={item.id}>
         <Td display="none">{item.id}</Td>
         <Td width="60%">{item.name}</Td>
-        <Td width="20%">{item.createdAt}</Td>
-        <Td width="20%">{item.updatedAt}</Td>
+        <Td width="20%">{dayjs(item.createdAt).format(`MMMM DD, YYYY`)}</Td>
+        <Td width="20%">{dayjs(item.updatedAt).format(`MMMM DD, YYYY`)}</Td>
         <Td>
           <ButtonGroup size="sm">
             <Button
+              onClick={() => handlePresent(String(item.id))}
               colorScheme="green"
               leftIcon={<PlayIcon width="20px" height="20px" />}
             >
@@ -64,7 +135,7 @@ const Index: FunctionComponent = () => {
     ));
 
   return (
-    <Content title="Senti" hasNavbar>
+    <Content hasNavbar>
       <Flex direction="column" justifyContent="center" alignItems="center">
         <Flex
           justifyContent="space-between"
@@ -89,7 +160,15 @@ const Index: FunctionComponent = () => {
                 <Th />
               </Tr>
             </Thead>
-            <Tbody>{renderRows()}</Tbody>
+            <Tbody>
+              {presentations.length === 0 ? (
+                <Tr>
+                  <Td>There are currently no presentations!</Td>
+                </Tr>
+              ) : (
+                renderRows()
+              )}
+            </Tbody>
           </Table>
         </Box>
       </Flex>
