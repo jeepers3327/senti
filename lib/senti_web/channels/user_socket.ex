@@ -2,7 +2,7 @@ defmodule SentiWeb.UserSocket do
   use Phoenix.Socket
 
   ## Channels
-  # channel "room:*", SentiWeb.RoomChannel
+  channel "session:*", SentiWeb.SessionChannel
 
   # Socket params are passed from the client and can
   # be used to verify and authenticate a user. After
