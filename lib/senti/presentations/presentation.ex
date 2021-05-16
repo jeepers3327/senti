@@ -6,7 +6,6 @@ defmodule Senti.Presentations.Presentation do
   alias Senti.Presentations.{Question, Session}
 
   schema "presentations" do
-    field :allow_multiple_answers, :boolean, default: false
     field :name, :string
 
     has_many :questions, Question
@@ -19,7 +18,7 @@ defmodule Senti.Presentations.Presentation do
   @doc false
   def changeset(presentation, attrs) do
     presentation
-    |> cast(attrs, [:name, :allow_multiple_answers, :user_id])
-    |> validate_required([:name, :allow_multiple_answers, :user_id])
+    |> cast(attrs, [:name, :user_id])
+    |> validate_required([:name, :user_id])
   end
 end

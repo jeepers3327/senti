@@ -6,7 +6,7 @@ defmodule Senti.Presentations.Session do
 
   schema "sessions" do
     field :access_code, :string
-    field :is_done, :boolean, default: false
+    field :status, :string, default: "ready"
 
     has_many :responses, Response
     belongs_to :presentation, Presentation
@@ -17,8 +17,8 @@ defmodule Senti.Presentations.Session do
   @doc false
   def changeset(session, attrs) do
     session
-    |> cast(attrs, [:access_code, :is_done, :presentation_id])
-    |> validate_required([:access_code, :is_done, :presentation_id])
+    |> cast(attrs, [:presentation_id, :status])
+    |> validate_required([:presentation_id])
     |> put_access_code()
   end
 

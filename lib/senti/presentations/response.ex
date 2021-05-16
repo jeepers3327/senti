@@ -6,7 +6,7 @@ defmodule Senti.Presentations.Response do
 
   schema "responses" do
     field :answer, :string
-
+    field :color, :string
     belongs_to :session, Session
     belongs_to :question, Question
 
@@ -16,7 +16,7 @@ defmodule Senti.Presentations.Response do
   @doc false
   def changeset(response, attrs) do
     response
-    |> cast(attrs, [:answer, :session_id, :question_id])
-    |> validate_required([:answer, :session_id, :question_id])
+    |> cast(attrs, [:answer, :session_id, :question_id, :color])
+    |> validate_required([:answer, :session_id, :question_id, :color])
   end
 end
