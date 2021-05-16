@@ -3,7 +3,7 @@ defmodule Senti.Token do
   @max_age 2_592_000
 
   def generate_token(user) do
-    Phoenix.Token.sign(SentiWeb.Endpoint, @salt, user.id)
+    Phoenix.Token.sign(SentiWeb.Endpoint, @salt, %{id: user.id, name: user.name})
   end
 
   def verify_token(token) do
