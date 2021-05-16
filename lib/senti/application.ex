@@ -14,7 +14,10 @@ defmodule Senti.Application do
       # Start the PubSub system
       {Phoenix.PubSub, name: Senti.PubSub},
       # Start the Endpoint (http/https)
-      SentiWeb.Endpoint
+      SentiWeb.Endpoint,
+      {Registry, keys: :unique, name: Senti.SessionRegistry},
+      {Senti.SessionSupervisor, []},
+      SentiWeb.Presence
       # Start a worker by calling: Senti.Worker.start_link(arg)
       # {Senti.Worker, arg}
     ]
