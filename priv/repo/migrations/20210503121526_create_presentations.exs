@@ -5,7 +5,7 @@ defmodule Senti.Repo.Migrations.CreatePresentations do
     create table(:presentations) do
       add :name, :string, null: false
       add :allow_multiple_answers, :boolean, default: false, null: false
-      add :user_id, references(:users, on_delete: :delete_all), null: false
+      add :user_id, references(:users, on_delete: :delete_all, type: :binary_id), null: false
 
       timestamps()
     end
