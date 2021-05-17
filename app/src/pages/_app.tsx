@@ -9,7 +9,7 @@ import { SocketProvider } from '@/contexts';
 import { store } from '@/store';
 import '@/styles/global.css';
 
-const APP_WS_URL = process.env.APP_WS_URL || `ws://localhost:4000/socket`;
+const APP_WS_URL = process.env.NEXT_PUBLIC_APP_WS_URL || `ws://localhost:4000/socket`;
 
 const progress = new ProgressBar({
   size: 2,
