@@ -21,6 +21,7 @@ secret_key_base =
 
 config :senti, SentiWeb.Endpoint,
   http: [
+    url: System.get_env("APP_URL"),
     port: String.to_integer(System.get_env("PORT") || "4000"),
     transport_options: [socket_opts: [:inet6]]
   ],
