@@ -9,10 +9,7 @@ database_url =
 
 config :senti, Senti.Repo,
   ssl: true,
-  username: System.get_env("DB_USER"),
-  password: System.get_env("DB_PASSWORD"),
-  database: System.get_env("DB_NAME"),
-  hostname: System.get_env("DB_HOST"),
+  url: database_url,
   pool_size: String.to_integer(System.get_env("POOL_SIZE") || "10"),
   show_sensitive_data_on_connection_error: true
 
