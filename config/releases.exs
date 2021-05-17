@@ -9,7 +9,10 @@ database_url =
 
 config :senti, Senti.Repo,
   ssl: true,
-  url: database_url,
+  username: System.get_env("DB_USER"),
+  password: System.get_env("DB_PASSWORD"),
+  database: System.get_env("DB_NAME"),
+  hostname: System.get_env("DB_HOST"),
   pool_size: String.to_integer(System.get_env("POOL_SIZE") || "10")
 
 secret_key_base =
@@ -21,7 +24,6 @@ secret_key_base =
 
 config :senti, SentiWeb.Endpoint,
   http: [
-    url: System.get_env("APP_URL"),
     port: String.to_integer(System.get_env("PORT") || "4000"),
     transport_options: [socket_opts: [:inet6]]
   ],
