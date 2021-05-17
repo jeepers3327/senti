@@ -14,6 +14,19 @@ config :senti, SentiWeb.Endpoint,
   url: [scheme: "https", host: "senti-backend.herokuapp.com", port: 443],
   force_ssl: [rewrite_on: [:x_forwarded_proto]]
 
+database_url =
+  System.get_env("DATABASE_URL") ||
+    raise """
+    environment variable DATABASE_URL is missing.
+    For example: ecto://USER:PASS@HOST/DATABASE
+    """
+
+config :senti, Senti.Repo,
+  ssl: true,
+  url: database_url,
+  pool_size: String.to_integer(System.get_env("POOL_SIZE") || "10"),
+  show_sensitive_data_on_connection_error: true
+
 # Do not print debug messages in production
 config :logger, level: :info
 
