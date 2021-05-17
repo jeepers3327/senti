@@ -9,6 +9,8 @@ import { SocketProvider } from '@/contexts';
 import { store } from '@/store';
 import '@/styles/global.css';
 
+const APP_WS_URL = process.env.APP_WS_URL || `ws://localhost:4000/socket`;
+
 const progress = new ProgressBar({
   size: 2,
   color: `#3182ce`,
@@ -38,7 +40,7 @@ const App = ({ Component, pageProps }: AppProps) => {
 
   return (
     <ChakraProvider>
-      <SocketProvider wsUrl="ws://localhost:4000/socket">
+      <SocketProvider wsUrl={APP_WS_URL}>
         <Provider store={store}>
           <Component {...pageProps} />
         </Provider>
