@@ -16,11 +16,12 @@ import Router from 'next/router';
 import { GetServerSideProps, NextPage } from 'next';
 import { PlusIcon } from '@heroicons/react/solid';
 import { useFormState } from 'react-use-form-state';
+import cookie from 'cookie';
 import _ from 'lodash';
 
 import { Content, Question } from '@/components';
 import { useAppDispatch, useAppSelector } from '@/hooks';
-import { createPresentation, fetchCurrentUser } from '@/utils';
+import { createPresentation, fetchCurrentUser, isLoggedIn } from '@/utils';
 import { setUserInfo, UserState } from '@/store';
 
 interface CreatePresentationProps {
@@ -36,16 +37,21 @@ interface QuestionListProps {
 }
 
 export const getServerSideProps: GetServerSideProps = async ({ req }) => {
-  if (!req.headers.cookie) {
-    return {
-      redirect: {
-        destination: `/login`,
-        permanent: false,
-      },
-    };
+  if (req.headers && req.headers.cookie) {
+    const reqCookies = cookie.parse(req.headers.cookie);
+    if (!isLoggedIn(reqCookies)) {
+      return {
+        redirect: {
+          destination: `/login`,
+          permanent: false,
+        },
+      };
+    }
   }
 
-  const authenticatedUser = await fetchCurrentUser(req.headers.cookie);
+  const authenticatedUser = await fetchCurrentUser(
+    req.headers.cookie as string,
+  );
   return {
     props: {
       authenticatedUser,

@@ -12,10 +12,16 @@ import {
 import Router from 'next/router';
 import React, { FormEvent, useEffect, useState } from 'react';
 import { useFormState } from 'react-use-form-state';
+import cookie from 'cookie';
 
 import { Content } from '@/components';
 import { useAppDispatch } from '@/hooks';
-import { fetchCurrentUser, formatSession, joinPresentation } from '@/utils';
+import {
+  fetchCurrentUser,
+  formatSession,
+  isLoggedIn,
+  joinPresentation,
+} from '@/utils';
 import { setSessionInfo, setUserInfo, UserState } from '@/store';
 import { GetServerSideProps, NextPage } from 'next';
 
@@ -28,14 +34,17 @@ interface IndexProps {
 }
 
 export const getServerSideProps: GetServerSideProps = async ({ req }) => {
-  if (!req.headers.cookie) {
-    return {
-      props: {
-        isAuthenticated: false,
-      },
-    };
+  if (req.headers && req.headers.cookie) {
+    const reqCookies = cookie.parse(req.headers.cookie);
+    if (!isLoggedIn(reqCookies)) {
+      return {
+        props: {
+          isAuthenticated: false,
+        },
+      };
+    }
   }
-  const user = await fetchCurrentUser(req.headers.cookie);
+  const user = await fetchCurrentUser(req.headers.cookie as string);
 
   return {
     props: {

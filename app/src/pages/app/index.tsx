@@ -26,6 +26,7 @@ import {
   fetchCurrentUser,
   fetchUserPresentations,
   formatSession,
+  isLoggedIn,
 } from '@/utils';
 import { useAppDispatch, useAppSelector } from '@/hooks';
 import {
@@ -37,6 +38,7 @@ import {
 } from '@/store';
 import { GetServerSideProps, NextPage } from 'next';
 import Router from 'next/router';
+import cookie from 'cookie';
 
 interface AppIndexProps {
   authenticatedUser: UserState;
@@ -44,17 +46,25 @@ interface AppIndexProps {
 }
 
 export const getServerSideProps: GetServerSideProps = async ({ req }) => {
-  if (!req.headers.cookie) {
-    return {
-      redirect: {
-        destination: `/login`,
-        permanent: false,
-      },
-    };
+  if (req.headers && req.headers.cookie) {
+    const reqCookies = cookie.parse(req.headers.cookie);
+    if (!isLoggedIn(reqCookies)) {
+      return {
+        redirect: {
+          destination: `/login`,
+          permanent: false,
+        },
+      };
+    }
   }
 
-  const authenticatedUser = await fetchCurrentUser(req.headers.cookie);
-  const userPresentations = await fetchUserPresentations(req.headers.cookie);
+  const authenticatedUser = await fetchCurrentUser(
+    req.headers.cookie as string,
+  );
+  const userPresentations = await fetchUserPresentations(
+    req.headers.cookie as string,
+  );
+
   return {
     props: {
       authenticatedUser,

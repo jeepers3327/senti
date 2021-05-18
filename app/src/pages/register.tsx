@@ -16,19 +16,39 @@ import {
   FormErrorMessage,
   useToast,
 } from '@chakra-ui/react';
+import cookie from 'cookie';
 
 import { useRouter } from 'next/router';
 import { Content } from '@/components';
 import { useFormState } from 'react-use-form-state';
-import { createNewUser } from '@/utils';
+import { createNewUser, isLoggedIn } from '@/utils';
 import { useAppDispatch } from '@/hooks';
 import { setUserInfo } from '@/store';
+import { GetServerSideProps } from 'next';
 
 interface RegisterProps {
   name: string;
   email: string;
   password: string;
 }
+
+export const getServerSideProps: GetServerSideProps = async ({ req }) => {
+  if (req.headers && req.headers.cookie) {
+    const reqCookies = cookie.parse(req.headers.cookie);
+    if (isLoggedIn(reqCookies)) {
+      return {
+        redirect: {
+          destination: `/app`,
+          permanent: false,
+        },
+      };
+    }
+  }
+
+  return {
+    props: {},
+  };
+};
 
 const Register = () => {
   const router = useRouter();

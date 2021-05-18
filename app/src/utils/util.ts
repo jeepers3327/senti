@@ -20,3 +20,6 @@ export const formatPresentation = (payload: any): PresentationState => ({
     updatedAt: payload.presentation.updatedAt,
   },
 });
+
+export const isLoggedIn = (cookie: { [key: string]: string }) =>
+  cookie.hasOwnProperty('_senti_key');

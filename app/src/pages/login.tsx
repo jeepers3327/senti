@@ -18,16 +18,36 @@ import {
 import Router from 'next/router';
 import RouteLink from 'next/link';
 import { useFormState } from 'react-use-form-state';
+import cookie from 'cookie';
 
 import { Content } from '@/components';
 import { useAppDispatch, useAppSelector } from '@/hooks';
-import { createUserSession } from '@/utils';
+import { createUserSession, isLoggedIn } from '@/utils';
 import { increaseAuthFailedAttempts } from '@/store';
+import { GetServerSideProps } from 'next';
 
 interface LoginProps {
   email: string;
   password: string;
 }
+
+export const getServerSideProps: GetServerSideProps = async ({ req }) => {
+  if (req.headers && req.headers.cookie) {
+    const reqCookies = cookie.parse(req.headers.cookie);
+    if (isLoggedIn(reqCookies)) {
+      return {
+        redirect: {
+          destination: `/app`,
+          permanent: false,
+        },
+      };
+    }
+  }
+
+  return {
+    props: {},
+  };
+};
 
 const Login = () => {
   const dispatch = useAppDispatch();
