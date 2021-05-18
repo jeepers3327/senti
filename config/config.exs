@@ -30,7 +30,7 @@ config :phoenix, :json_library, Jason
 config :senti, Senti.Repo, migration_timestamps: [type: :utc_datetime]
 
 config :cors_plug,
-  origin: ["http://localhost:3000"],
+  origin: ["http://localhost:3000", "https://senti-iota.vercel.app/"],
   max_age: 86400,
   methods: ["GET", "POST", "PUT", "DELETE"]
 
