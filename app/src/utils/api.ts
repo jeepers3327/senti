@@ -53,8 +53,8 @@ export const createNewUser = async (
 export const createUserSession = async (
   payload: LoginPayload,
 ): Promise<UserState> => {
-  const data = await request
-    .post<UserState>(`http://localhost:3000/api/session`, payload)
+  const data = await localRequest
+    .post<UserState>(`/session`, payload)
     .then((response) => response.data)
     .catch((error) => {
       throw error;
@@ -64,7 +64,7 @@ export const createUserSession = async (
 };
 
 export const deleteSession = async () => {
-  await localRequest.delete(`${LOCAL_API_ENDPOINT}/session`);
+  await localRequest.delete(`/session`);
 };
 
 export const fetchCurrentUser = async (
@@ -117,7 +117,7 @@ export const fetchUserPresentations = async (cookie: string) => {
 
 export const createPresentation = async (payload: any) => {
   const data = await localRequest
-    .post(`${LOCAL_API_ENDPOINT}/presentations`, { presentation: payload })
+    .post(`/presentations`, { presentation: payload })
     .then((response) => response.data);
   return data;
 };
