@@ -1,4 +1,4 @@
-defmodule MyApp.Release do
+defmodule Senti.Release do
   @app :senti
 
   def migrate do

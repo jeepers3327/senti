@@ -20,7 +20,7 @@ defmodule Senti.MixProject do
   def application do
     [
       mod: {Senti.Application, []},
-      extra_applications: [:logger, :runtime_tools]
+      extra_applications: [:logger, :runtime_tools, :ssl]
     ]
   end
 
