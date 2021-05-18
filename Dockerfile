@@ -1,10 +1,7 @@
-###
-### Fist Stage - Building the Release
-###
-FROM hexpm/elixir:1.11.2-erlang-23.3.2-alpine-3.13.3 AS build
+FROM elixir:1.9.0-alpine AS build
 
 # install build dependencies
-RUN apk add --no-cache build-base npm
+RUN apk add --no-cache build-base npm git python
 
 # prepare build dir
 WORKDIR /app
@@ -13,33 +10,24 @@ WORKDIR /app
 RUN mix local.hex --force && \
     mix local.rebar --force
 
-# set build ENV as prod
+# set build ENV
 ENV MIX_ENV=prod
-ENV SECRET_KEY_BASE=nokey
 
-# Copy over the mix.exs and mix.lock files to load the dependencies. If those
-# files don't change, then we don't keep re-fetching and rebuilding the deps.
+# install mix dependencies
 COPY mix.exs mix.lock ./
 COPY config config
-
-RUN mix deps.get --only prod && \
-    mix deps.compile
+RUN mix do deps.get, deps.compile
 
 COPY priv priv
 
-# copy source here if not using TailwindCSS
-COPY lib lib
-
 # compile and build release
-COPY rel rel
+COPY lib lib
+# uncomment COPY if rel/ exists
+# COPY rel rel
 RUN mix do compile, release
 
-###
-### Second Stage - Setup the Runtime Environment
-###
-
-# prepare release docker image
-FROM alpine:3.13.3 AS app
+# prepare release image
+FROM alpine:3.9 AS app
 RUN apk add --no-cache openssl ncurses-libs
 
 WORKDIR /app
@@ -51,8 +39,5 @@ USER nobody:nobody
 COPY --from=build --chown=nobody:nobody /app/_build/prod/rel/senti ./
 
 ENV HOME=/app
-ENV MIX_ENV=prod
-ENV SECRET_KEY_BASE=nokey
-ENV PORT=4000
 
 CMD ["bin/senti", "start"]

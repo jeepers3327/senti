@@ -1,2 +1,15 @@
-deps/
-app/
+/app/
+/_build/
+/cover/
+/deps/
+/doc/
+/.fetch
+erl_crash.dump
+*.ez
+senti-*.tar
+/priv/static/
+./git
+.dockerignore
+.env*
+!.env.example
+docker-compose.override.yml
