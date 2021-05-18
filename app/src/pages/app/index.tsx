@@ -46,30 +46,30 @@ interface AppIndexProps {
 }
 
 export const getServerSideProps: GetServerSideProps = async ({ req }) => {
-  if (req.headers && req.headers.cookie) {
-    const reqCookies = cookie.parse(req.headers.cookie);
-    if (!isLoggedIn(reqCookies)) {
-      return {
-        redirect: {
-          destination: `/login`,
-          permanent: false,
-        },
-      };
-    }
+  const reqCookies = cookie.parse(req.headers.cookie ?? '');
+  if (!isLoggedIn(reqCookies)) {
+    return {
+      redirect: {
+        destination: `/login`,
+        permanent: false,
+      },
+    };
   }
 
-  const authenticatedUser = await fetchCurrentUser(
-    req.headers.cookie as string,
-  );
-  const userPresentations = await fetchUserPresentations(
-    req.headers.cookie as string,
-  );
+  if (req.headers && req.headers.cookie) {
+    const authenticatedUser = await fetchCurrentUser(req.headers.cookie);
+    const userPresentations = await fetchUserPresentations(req.headers.cookie);
+
+    return {
+      props: {
+        authenticatedUser,
+        userPresentations,
+      },
+    };
+  }
 
   return {
-    props: {
-      authenticatedUser,
-      userPresentations,
-    },
+    props: {},
   };
 };
 

@@ -33,16 +33,14 @@ interface RegisterProps {
 }
 
 export const getServerSideProps: GetServerSideProps = async ({ req }) => {
-  if (req.headers && req.headers.cookie) {
-    const reqCookies = cookie.parse(req.headers.cookie);
-    if (isLoggedIn(reqCookies)) {
-      return {
-        redirect: {
-          destination: `/app`,
-          permanent: false,
-        },
-      };
-    }
+  const reqCookies = cookie.parse(req.headers.cookie ?? '');
+  if (isLoggedIn(reqCookies)) {
+    return {
+      redirect: {
+        destination: `/app`,
+        permanent: false,
+      },
+    };
   }
 
   return {

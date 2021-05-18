@@ -34,22 +34,26 @@ interface IndexProps {
 }
 
 export const getServerSideProps: GetServerSideProps = async ({ req }) => {
-  if (req.headers && req.headers.cookie) {
-    const reqCookies = cookie.parse(req.headers.cookie);
-    if (!isLoggedIn(reqCookies)) {
-      return {
-        props: {
-          isAuthenticated: false,
-        },
-      };
-    }
+  const reqCookies = cookie.parse(req.headers.cookie ?? '');
+  if (!isLoggedIn(reqCookies)) {
+    return {
+      props: {
+        isAuthenticated: false,
+      },
+    };
   }
-  const user = await fetchCurrentUser(req.headers.cookie as string);
+
+  if (req.headers && req.headers.cookie) {
+    const user = await fetchCurrentUser(req.headers.cookie);
+    return {
+      props: {
+        user,
+      },
+    };
+  }
 
   return {
-    props: {
-      user,
-    },
+    props: {},
   };
 };
 
