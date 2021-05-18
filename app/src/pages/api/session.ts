@@ -3,7 +3,7 @@ import { NextApiRequest, NextApiResponse } from 'next';
 
 import { request } from '@/utils';
 
-const API_ENDPOINT = process.env.API_BASE_URL;
+const API_ENDPOINT = process.env.NEXT_PUBLIC_API_BASE_URL;
 
 export default async function handler(
   req: NextApiRequest,
