@@ -22,6 +22,12 @@ defmodule Senti.Accounts.User do
     |> put_password_hash()
   end
 
+  def update_user_changeset(user, attrs) do
+    user
+    |> cast(attrs, [:name, :password])
+    |> put_password_hash()
+  end
+
   defp put_password_hash(
          %Ecto.Changeset{valid?: true, changes: %{password: password}} = changeset
        ) do

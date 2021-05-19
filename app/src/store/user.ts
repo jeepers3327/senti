@@ -23,6 +23,7 @@ export const initialState: UserState = {
     createdAt: ``,
     id: 0,
     name: ``,
+    sessions: 0,
     questions: [],
     updatedAt: ``,
   },

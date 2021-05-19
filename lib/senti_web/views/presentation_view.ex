@@ -14,6 +14,7 @@ defmodule SentiWeb.PresentationView do
     %{
       id: presentation.id,
       name: presentation.name,
+      sessions: length(presentation.sessions),
       created_at: presentation.inserted_at,
       updated_at: presentation.updated_at
     }

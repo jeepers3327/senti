@@ -5,16 +5,16 @@ defmodule SentiWeb.UserControllerTest do
   alias Senti.Accounts.User
 
   @create_attrs %{
-    email: "some email",
+    emai: "some emai",
     name: "some name",
     password_hash: "some password_hash"
   }
   @update_attrs %{
-    email: "some updated email",
+    emai: "some updated emai",
     name: "some updated name",
     password_hash: "some updated password_hash"
   }
-  @invalid_attrs %{email: nil, name: nil, password_hash: nil}
+  @invalid_attrs %{emai: nil, name: nil, password_hash: nil}
 
   def fixture(:user) do
     {:ok, user} = Accounts.create_user(@create_attrs)
@@ -41,7 +41,7 @@ defmodule SentiWeb.UserControllerTest do
 
       assert %{
                "id" => id,
-               "email" => "some email",
+               "emai" => "some emai",
                "name" => "some name",
                "password_hash" => "some password_hash"
              } = json_response(conn, 200)["data"]
@@ -64,7 +64,7 @@ defmodule SentiWeb.UserControllerTest do
 
       assert %{
                "id" => id,
-               "email" => "some updated email",
+               "emai" => "some updated emai",
                "name" => "some updated name",
                "password_hash" => "some updated password_hash"
              } = json_response(conn, 200)["data"]

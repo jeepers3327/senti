@@ -115,7 +115,8 @@ const Index: NextPage<AppIndexProps> = ({
     presentations.map((item) => (
       <Tr key={item.id}>
         <Td display="none">{item.id}</Td>
-        <Td width="60%">{item.name}</Td>
+        <Td width="40%">{item.name}</Td>
+        <Td width="20%">{item.sessions}</Td>
         <Td width="20%">{dayjs(item.createdAt).format(`MMMM DD, YYYY`)}</Td>
         <Td width="20%">{dayjs(item.updatedAt).format(`MMMM DD, YYYY`)}</Td>
         <Td>
@@ -126,18 +127,6 @@ const Index: NextPage<AppIndexProps> = ({
               leftIcon={<PlayIcon width="20px" height="20px" />}
             >
               Present
-            </Button>
-            <Button
-              variant="ghost"
-              leftIcon={<ViewListIcon width="20px" height="20px" />}
-            >
-              Details
-            </Button>
-            <Button
-              variant="ghost"
-              leftIcon={<DocumentReportIcon width="20px" height="20px" />}
-            >
-              Export result
             </Button>
           </ButtonGroup>
         </Td>
@@ -165,6 +154,7 @@ const Index: NextPage<AppIndexProps> = ({
               <Tr>
                 <Th display="none">ID</Th>
                 <Th>Name</Th>
+                <Th>Number of sessions</Th>
                 <Th>Created At</Th>
                 <Th>Updated At</Th>
                 <Th />

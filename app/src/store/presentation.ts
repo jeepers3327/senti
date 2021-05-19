@@ -20,6 +20,7 @@ interface QuestionState {
 export interface Presentation {
   id: number;
   name: string;
+  sessions: number;
   questions: Question[];
   createdAt: string;
   updatedAt: string;
@@ -43,6 +44,7 @@ const initialState: PresentationState = {
   presentation: {
     id: 0,
     name: ``,
+    sessions: 0,
     questions: [],
     createdAt: ``,
     updatedAt: ``,

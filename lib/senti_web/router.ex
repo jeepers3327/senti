@@ -24,7 +24,7 @@ defmodule SentiWeb.Router do
 
   scope "/api", SentiWeb do
     pipe_through [:api, :protected]
-
+    resources "/users", UserController, singleton: true, only: [:update]
     resources "/presentations", PresentationController, only: [:index, :create]
 
     get "/user/me", SessionController, :me

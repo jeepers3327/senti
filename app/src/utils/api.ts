@@ -21,6 +21,11 @@ export interface LoginPayload {
   password: string;
 }
 
+export interface UpdateUserPayload {
+  name: string;
+  password: string;
+}
+
 export const request = axios.create({
   baseURL: API_ENDPOINT,
   withCredentials: true,
@@ -65,6 +70,10 @@ export const createUserSession = async (
 
 export const deleteSession = async () => {
   await localRequest.delete(`/session`);
+};
+
+export const updateUser = async (payload: UpdateUserPayload) => {
+  await localRequest.put(`/users`, { user: payload });
 };
 
 export const fetchCurrentUser = async (

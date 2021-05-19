@@ -35,7 +35,12 @@ defmodule Senti.Accounts do
       ** (Ecto.NoResultsError)
 
   """
-  def get_user!(id), do: Repo.get!(User, id)
+  def get_user(id) do
+    case Repo.get(User, id) do
+      nil -> :error
+      user -> user
+    end
+  end
 
   @doc """
   Creates a user.
@@ -69,7 +74,7 @@ defmodule Senti.Accounts do
   """
   def update_user(%User{} = user, attrs) do
     user
-    |> User.changeset(attrs)
+    |> User.update_user_changeset(attrs)
     |> Repo.update()
   end
 

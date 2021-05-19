@@ -12,6 +12,7 @@ defmodule Senti.Presentations do
   def list_presentations(user_id) do
     Presentation
     |> where(user_id: ^user_id)
+    |> preload(:sessions)
     |> Repo.all()
   end
 
