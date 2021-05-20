@@ -37,9 +37,7 @@ export const getServerSideProps: GetServerSideProps = async ({ req }) => {
   const reqCookies = cookie.parse(req.headers.cookie ?? ``);
   if (!isLoggedIn(reqCookies)) {
     return {
-      props: {
-        isAuthenticated: false,
-      },
+      props: {},
     };
   }
 

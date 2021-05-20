@@ -65,7 +65,7 @@ const Login = () => {
   };
 
   useEffect(() => {
-    if (!user.isAuthenticated && user.failedAttempts > 0) {
+    if (user.failedAttempts > 0) {
       toast({
         title: `Wrong email or password!`,
         status: `error`,
