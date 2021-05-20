@@ -7,7 +7,12 @@ defmodule SentiWeb.PresentationView do
   end
 
   def render("show.json", %{presentation: presentation}) do
-    %{data: render_one(presentation, PresentationView, "presentation.json")}
+    %{
+      id: presentation.id,
+      name: presentation.name,
+      created_at: presentation.inserted_at,
+      updated_at: presentation.updated_at
+    }
   end
 
   def render("presentation.json", %{presentation: presentation}) do
