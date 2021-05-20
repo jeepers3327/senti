@@ -13,6 +13,13 @@
 
 <img src="./demo/demo.gif" >
 
+### Features
+* User authentication and registration
+* Update user profile
+* Sends password reset email to updated the password
+* Track number of users waiting in the presentation
+* Realtime updates of presentation
+
 ### Built With
 
 - [Elixir](https://elixir-lang.org/)
@@ -57,13 +64,26 @@ To get a local copy up and running follow these simple steps.
  yarn install --modules-folder app/
 ```
 
-4. Start phoenix server
+4. Create `.env.local` file inside `app` directory and set the following environment variables
+```
+NEXT_PUBLIC_API_BASE_URL = your_frontend_host_url
+NEXT_PUBLIC_LOCAL_API_BASE_URL = your_backend_host_url
+```
+
+5. In the root directory export the following environment variables
+```sh
+export DATABASE_URL=your_db_url
+export SECRET_KEY_BASE=your_secret_key_base
+export SENDGRID_API_KEY=your_sendgrid_api_key
+export POOL_SIZE=your_db_pool_size
+```
+6. Start phoenix server
 
 ```
  iex -S mix phx.server
 ```
 
-5. Start Nextjs server
+7. Start Nextjs server
 
 ```
  cd app/
@@ -77,4 +97,5 @@ Distributed under the MIT License. See `LICENSE` for more information.
 ## Contact
 
 Twitter: [@jfrysjt97](https://twitter.com/jfrysjt97)
+
 LinkedIn: [Jhefrey Sajot](https://www.linkedin.com/in/jhefrey-sajot-a22706165/)
