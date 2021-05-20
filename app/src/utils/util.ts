@@ -16,10 +16,11 @@ export const formatPresentation = (payload: any): PresentationState => ({
     id: payload.presentation.presentation_id,
     name: payload.presentation.presentation_name,
     questions: payload.presentation.questions,
+    sessions: payload.presentation.sessions,
     createdAt: payload.presentation.createdAt,
     updatedAt: payload.presentation.updatedAt,
   },
 });
 
 export const isLoggedIn = (cookie: { [key: string]: string }) =>
-  cookie.hasOwnProperty('_senti_key');
+  Object.prototype.hasOwnProperty.call(cookie, `_senti_key`);
