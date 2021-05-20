@@ -140,3 +140,13 @@ export const createSession = async (presentationId: string) => {
 
   return data;
 };
+
+export const updateUserPassword = async (password: string, token: string) => {
+  const data = await request.put(`/password_reset`, { password, token });
+  return data;
+};
+
+export const maybeForgotPassword = async (email: string) => {
+  const data = await request.post(`/password_reset`, { email });
+  return data;
+};
