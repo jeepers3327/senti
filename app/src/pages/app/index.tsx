@@ -159,7 +159,7 @@ const Index: NextPage<AppIndexProps> = ({
             <Tbody>
               {presentations.length === 0 ? (
                 <Tr>
-                  <Td>There are currently no presentations!</Td>
+                  <Td colSpan={5}>There are currently no presentations!</Td>
                 </Tr>
               ) : (
                 renderRows()
