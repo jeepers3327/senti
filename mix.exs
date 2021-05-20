@@ -45,7 +45,8 @@ defmodule Senti.MixProject do
       {:plug_cowboy, "~> 2.0"},
       {:argon2_elixir, "~> 2.4"},
       {:cors_plug, "~> 2.0"},
-      {:nanoid, "~> 2.0.5"}
+      {:nanoid, "~> 2.0.5"},
+      {:bamboo, "~> 2.1.0"}
     ]
   end
 

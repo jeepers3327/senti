@@ -10,6 +10,8 @@ defmodule Senti.Accounts.User do
     field :password_hash, :string
     field :password, :string, virtual: true
 
+    has_many :password_resets, Senti.Accounts.PasswordReset
+
     timestamps(type: :utc_datetime)
   end
 

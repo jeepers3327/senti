@@ -5,8 +5,10 @@ defmodule Senti.Accounts do
 
   import Ecto.Query, warn: false
   alias Senti.Repo
+  alias Ecto.Multi
 
-  alias Senti.Accounts.User
+  alias Senti.Accounts.{User, PasswordReset, Email}
+  alias Senti.Mailer
 
   @doc """
   Returns the list of users.
@@ -42,6 +44,13 @@ defmodule Senti.Accounts do
     end
   end
 
+  def get_user_by_email(email) do
+    case Repo.get_by(User, email: email) do
+      nil -> {:error, :not_found}
+      user -> {:ok, user}
+    end
+  end
+
   @doc """
   Creates a user.
 
@@ -73,9 +82,14 @@ defmodule Senti.Accounts do
 
   """
   def update_user(%User{} = user, attrs) do
-    user
-    |> User.update_user_changeset(attrs)
-    |> Repo.update()
+    Multi.new()
+    |> Multi.update(:user, User.update_user_changeset(user, attrs))
+    |> Multi.delete_all(:tokens, Ecto.assoc(user, :password_resets))
+    |> Repo.transaction()
+    |> case do
+      {:ok, %{user: user}} -> {:ok, user}
+      {:error, :user, changeset, _} -> {:error, changeset}
+    end
   end
 
   @doc """
@@ -111,6 +125,49 @@ defmodule Senti.Accounts do
     User
     |> Repo.get_by(email: email)
     |> verify_password(password)
+  end
+
+  def create_password_token(attrs \\ %{}) do
+    %PasswordReset{}
+    |> PasswordReset.changeset(attrs)
+    |> Repo.insert()
+  end
+
+  def get_password_token(token) do
+    case Repo.get_by(PasswordReset, reset_token: token) do
+      nil ->
+        {:error, :not_found}
+
+      reset_token ->
+        case reset_token.has_updated do
+          true -> {:error, :already_updated}
+          false -> reset_token
+        end
+    end
+  end
+
+  def get_user_from_token(params) do
+    token = params["token"]
+
+    PasswordReset
+    |> join(:inner, [p], u in User, on: p.user_id == u.id)
+    |> where([p], p.reset_token == ^token)
+    |> select([p, u], u)
+    |> Repo.one()
+    |> case do
+      nil -> {:error, :not_found}
+      user -> {:ok, user}
+    end
+  end
+
+  def send_email(user, url) do
+    user
+    |> Email.password_reset_email(url)
+    |> Mailer.deliver_later()
+  end
+
+  def generate_reset_password_token do
+    :crypto.strong_rand_bytes(64) |> Base.url_encode64()
   end
 
   defp verify_password(nil, _) do

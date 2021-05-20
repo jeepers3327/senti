@@ -23,6 +23,11 @@ config :logger, :console,
   format: "$time $metadata[$level] $message\n",
   metadata: [:request_id]
 
+# Configures Mailer
+config :senti, Senti.Mailer,
+  adapter: Bamboo.SendGridAdapter,
+  api_key: "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"
+
 # Use Jason for JSON parsing in Phoenix
 config :phoenix, :json_library, Jason
 

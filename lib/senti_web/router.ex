@@ -18,7 +18,8 @@ defmodule SentiWeb.Router do
     resources "/session", SessionController, singleton: true, only: [:create, :delete]
     resources "/presentations/session", PresentationSessionController, only: [:create]
     get "/presentations/session/:session_id", PresentationController, :show
-
+    resources "/password_reset", PasswordResetController, only: [:index, :create]
+    put "/password_reset", PasswordResetController, :update
     post "/presentations/join", PresentationController, :join
   end
 
@@ -26,7 +27,6 @@ defmodule SentiWeb.Router do
     pipe_through [:api, :protected]
     resources "/users", UserController, singleton: true, only: [:update]
     resources "/presentations", PresentationController, only: [:index, :create]
-
     get "/user/me", SessionController, :me
   end
 
