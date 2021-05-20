@@ -18,7 +18,7 @@ import {
 } from '@chakra-ui/react';
 import cookie from 'cookie';
 
-import { useRouter } from 'next/router';
+import Router from 'next/router';
 import { Content } from '@/components';
 import { useFormState } from 'react-use-form-state';
 import { createNewUser, isLoggedIn } from '@/utils';
@@ -33,7 +33,7 @@ interface RegisterProps {
 }
 
 export const getServerSideProps: GetServerSideProps = async ({ req }) => {
-  const reqCookies = cookie.parse(req.headers.cookie ?? '');
+  const reqCookies = cookie.parse(req.headers.cookie ?? ``);
   if (isLoggedIn(reqCookies)) {
     return {
       redirect: {
@@ -49,7 +49,6 @@ export const getServerSideProps: GetServerSideProps = async ({ req }) => {
 };
 
 const Register = () => {
-  const router = useRouter();
   const dispatch = useAppDispatch();
   const toast = useToast();
   const [formState, { text, password, email }] = useFormState<RegisterProps>();
@@ -60,7 +59,7 @@ const Register = () => {
     try {
       const data = await createNewUser(formState.values);
       dispatch(setUserInfo(data));
-      router.push(`/app`);
+      Router.push(`/app`);
     } catch {
       toast({
         title: `An error occured!`,
@@ -155,7 +154,7 @@ const Register = () => {
               </Text>
 
               <Button
-                onClick={() => router.push(`/login`)}
+                onClick={() => Router.push(`/login`)}
                 colorScheme="blue"
                 variant="outline"
               >

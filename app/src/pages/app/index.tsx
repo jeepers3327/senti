@@ -13,11 +13,7 @@ import {
   Tr,
 } from '@chakra-ui/react';
 import dayjs from 'dayjs';
-import {
-  PlayIcon,
-  ViewListIcon,
-  DocumentReportIcon,
-} from '@heroicons/react/solid';
+import { PlayIcon } from '@heroicons/react/solid';
 import Link from 'next/link';
 
 import { Content } from '@/components';
@@ -46,7 +42,7 @@ interface AppIndexProps {
 }
 
 export const getServerSideProps: GetServerSideProps = async ({ req }) => {
-  const reqCookies = cookie.parse(req.headers.cookie ?? '');
+  const reqCookies = cookie.parse(req.headers.cookie ?? ``);
   if (!isLoggedIn(reqCookies)) {
     return {
       redirect: {

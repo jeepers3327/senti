@@ -1,29 +1,20 @@
 import {
-  Box,
-  Grid,
   Heading,
   Flex,
   Button,
-  Stack,
-  Textarea,
   Input,
-  FormControl,
-  FormLabel,
-  Text,
   VStack,
+  useToast,
 } from '@chakra-ui/react';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import Router from 'next/router';
 import { GetServerSideProps, NextPage } from 'next';
-import { PlusIcon } from '@heroicons/react/solid';
 import { useFormState } from 'react-use-form-state';
 import cookie from 'cookie';
-import _ from 'lodash';
 
-import { Content, Question } from '@/components';
-import { useAppDispatch, useAppSelector } from '@/hooks';
+import { Content } from '@/components';
+import { useAppDispatch } from '@/hooks';
 import {
-  createPresentation,
   fetchCurrentUser,
   isLoggedIn,
   updateUser,
@@ -32,7 +23,7 @@ import {
 import { setUserInfo, UserState } from '@/store';
 
 export const getServerSideProps: GetServerSideProps = async ({ req }) => {
-  const reqCookies = cookie.parse(req.headers.cookie ?? '');
+  const reqCookies = cookie.parse(req.headers.cookie ?? ``);
   if (!isLoggedIn(reqCookies)) {
     return {
       redirect: {
@@ -61,6 +52,7 @@ const ManageAccount: NextPage<{ authenticatedUser: UserState }> = ({
 }) => {
   const [formState, { text, password }] = useFormState<UpdateUserPayload>();
   const dispatch = useAppDispatch();
+  const toast = useToast();
 
   useEffect(() => {
     dispatch(setUserInfo(authenticatedUser));
@@ -72,7 +64,14 @@ const ManageAccount: NextPage<{ authenticatedUser: UserState }> = ({
       await updateUser(formState.values);
 
       Router.push(`/`);
-    } catch {}
+    } catch {
+      toast({
+        title: `An error occured!`,
+        status: `error`,
+        position: `top`,
+        duration: 5000,
+      });
+    }
   };
 
   return (
@@ -83,8 +82,8 @@ const ManageAccount: NextPage<{ authenticatedUser: UserState }> = ({
         </Heading>
         <form onSubmit={handleSubmit}>
           <VStack width="sm" spacing="15">
-            <Input placeholder="New name" {...text('name')} />
-            <Input placeholder="New password" {...password('password')} />
+            <Input placeholder="New name" {...text(`name`)} />
+            <Input placeholder="New password" {...password(`password`)} />
             <Button type="submit" colorScheme="blue" isFullWidth>
               Update account
             </Button>

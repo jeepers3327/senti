@@ -32,7 +32,7 @@ interface LoginProps {
 }
 
 export const getServerSideProps: GetServerSideProps = async ({ req }) => {
-  const reqCookies = cookie.parse(req.headers.cookie ?? '');
+  const reqCookies = cookie.parse(req.headers.cookie ?? ``);
   if (isLoggedIn(reqCookies)) {
     return {
       redirect: {
@@ -115,7 +115,7 @@ const Login = () => {
                     <Link
                       tabIndex={5}
                       as={RouteLink}
-                      href="/password_reset"
+                      href="/forgot_password"
                       color="secondary.link"
                       fontSize="sm"
                       fontWeight="500"

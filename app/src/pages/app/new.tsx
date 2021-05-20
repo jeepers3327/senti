@@ -37,7 +37,7 @@ interface QuestionListProps {
 }
 
 export const getServerSideProps: GetServerSideProps = async ({ req }) => {
-  const reqCookies = cookie.parse(req.headers.cookie ?? '');
+  const reqCookies = cookie.parse(req.headers.cookie ?? ``);
   if (!isLoggedIn(reqCookies)) {
     return {
       redirect: {

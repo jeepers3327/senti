@@ -171,7 +171,7 @@ const Header: FunctionComponent = () => {
                           Logged in as: {user.name}
                         </Text>
                         <MenuDivider />
-                        <MenuItem onClick={() => Router.push('/app/account')}>
+                        <MenuItem onClick={() => Router.push(`/app/account`)}>
                           Update account
                         </MenuItem>
                         <MenuItem onClick={handleLogout}>Logout</MenuItem>
