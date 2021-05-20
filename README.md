@@ -11,7 +11,7 @@
   <br/>
 </p>
 
-<img src="./demo/demo.gif" width="50%">
+<img src="./demo/demo.gif" >
 
 ### Built With
 
