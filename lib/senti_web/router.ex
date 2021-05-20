@@ -11,6 +11,10 @@ defmodule SentiWeb.Router do
     plug SentiWeb.Plugs.EnsureAuthenticated, handler: SentiWeb.ErrorHandler
   end
 
+  scope "/", SentiWeb do
+    get "/password_reset", PasswordResetController, :index
+  end
+
   scope "/api", SentiWeb do
     pipe_through :api
 
@@ -18,8 +22,10 @@ defmodule SentiWeb.Router do
     resources "/session", SessionController, singleton: true, only: [:create, :delete]
     resources "/presentations/session", PresentationSessionController, only: [:create]
     get "/presentations/session/:session_id", PresentationController, :show
-    resources "/password_reset", PasswordResetController, only: [:index, :create]
+
+    post "/password_reset", PasswordResetController, :create
     put "/password_reset", PasswordResetController, :update
+
     post "/presentations/join", PresentationController, :join
   end
 
