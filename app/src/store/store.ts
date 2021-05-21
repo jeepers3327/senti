@@ -7,6 +7,7 @@ export const store = configureStore({
     session: sessionReducer,
     user: userReducer,
   },
+  devTools: process.env.NODE_ENV === `development`,
 });
 
 export type RootState = ReturnType<typeof store.getState>;
