@@ -26,7 +26,7 @@ config :logger, :console,
 # Configures Mailer
 config :senti, Senti.Mailer,
   adapter: Bamboo.SendGridAdapter,
-  api_key: "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"
+  api_key: System.get_env("SENDGRID_API_KEY")
 
 # Use Jason for JSON parsing in Phoenix
 config :phoenix, :json_library, Jason
